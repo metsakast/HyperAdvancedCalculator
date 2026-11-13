@@ -1,2 +1,7 @@
-Yet again a learning project. This is just the beginning of a (hopefully eventually finished) large project. My end goal is to build a physical CAS calculator from scratch (both hardware and software). Currently I'm starting with basic software such as lexer, parser and my own mathlib. Later down the line I plan on adding CAS capability
+Yet again a learning project. This is just the beginning of a (hopefully eventually finished) large project. 
+
+My end goal is to build a physical CAS calculator from scratch (both hardware and software) (this also means using no external libraries such as math.h).
+
+Currently I'm starting with basic software such as lexer, parser and my own mathlib. Later down the line I plan on adding CAS capability
+
 AI USAGE: I use claude code for learning concepts and nudging me in case I get stuck (by providing examples not personalised to my own code, this is to force me to genuinely comprehend it). Only lines written by claude in this project are for testing purposes (also marked by a comment). Everything else is handwritten - by me.
