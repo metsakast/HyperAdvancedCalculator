@@ -3,8 +3,8 @@
  *
  * brief rules:
  *  - spaces get ignored.
- *  - multiple periods in one sequence (eg 1.23.45.67) return TKN_ERROR on the second period. Count starts from scratch afterward.
- *  - identifiers must start with a character in the English alphabet. After the first character numbers and question marks are counted.
+ *  - multiple periods in one sequence (e.g., 1.23.45.67) return TKN_ERROR on the second period. Count starts from scratch afterward.
+ *  - identifiers must start with a character in the English alphabet. After the first character numbers and underscores are counted.
  *  - something I most likely forgot.
  */
 #include "lexer.h"
@@ -16,32 +16,24 @@ void lexerInitialize(Lexer *lexer, const char *source) {
 }
 
 static int isAlpha(char ch) {
-    // check if ch is a character in the alphabet
-    static char lowercaseAlphabet[] = "abcdefghijklmnopqrstuvwxyz";
-    static char uppercaseAlphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    for (int i = 0; i < 26; i++) {
-        if (ch == lowercaseAlphabet[i] || ch == uppercaseAlphabet[i]) return 1;
-    }
+    // return 1 if ch is a character from a-z or A-Z, return 0 otherwise
+    if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) return 1;
     return 0;
 }
 
 static int isDigit(char ch) {
-    // return if ch is a digit
-    static char allDigits[] = "0123456789";
-    for (int i = 0; i < 10; i++) {
-        if (ch == allDigits[i]) return 1;
-    }
+    // return 1 if ch is a digit, return 0 otherwise
+    if (ch >= '0' && ch <= '9') return 1;
     return 0;
 }
 
-static int countAlphaSequence(Lexer *lexer) {
+static int countAlphaSequence(const Lexer *lexer) {
     // return the length of identifier sequence
     int i = 0;
 
     while (1) {
         char currentChar = lexer->input_string[lexer->index + i];
-        if (isAlpha(currentChar) || isDigit(currentChar) || currentChar == '?') {
+        if (isAlpha(currentChar) || isDigit(currentChar) || currentChar == '_') {
             i++;
         }
         else break;
@@ -49,36 +41,31 @@ static int countAlphaSequence(Lexer *lexer) {
     return i;
 }
 
-static int analyzeDigitSequence(Lexer *lexer,double *value) {
+static int analyzeDigitSequence(const Lexer *lexer,double *value) {
     // read through the current sequence of digits, return its length and pass a pointer of its numerical value
     int hasPeriodOccurred = 0;
-    double place = 0.1;
     int i = 0;
-    double loopNumber = 0;
     double total = 0;
+    double divisor = 1.0;
 
     while (1) {
-        char loopLetter = lexer->input_string[lexer->index + i];
+        const char loopLetter = lexer->input_string[lexer->index + i];
 
         if (isDigit(loopLetter)) {
-            loopNumber = loopLetter - '0';  // this converts character to integer. eg '7' - '0' = 7
-            if (hasPeriodOccurred == 0) {    // period hasn't occurred, multiply by 10 each run
-                total = total * 10 + loopNumber;
-                i++;
+            int loopNumber = loopLetter - '0';  // this converts character to integer. eg '7' - '0' = 7
+            total = total * 10.0 + loopNumber;
+            if (hasPeriodOccurred) {    // period has occurred, increase divisor by a factor of one.
+                divisor *= 10;
             }
-            else {  // period has occurred, now each number has less value
-                total = total + loopNumber * place;
-                place /= 10;
-                i++;
-            }
+            i++;
         }
-        else if (loopLetter == '.' && hasPeriodOccurred == 0) {
+        else if (loopLetter == '.' && hasPeriodOccurred == 0) { // period occurred, update hasPeriodOccurred.
             hasPeriodOccurred = 1;
             i++;
         }
         else break;
     }
-    *value = total; //change value to total through pointer
+    *value = total / divisor; //change value to (total/divisor) through pointer
     return i;   // return digit sequence length
 }
 
