@@ -1,10 +1,11 @@
 /* tokenize all characters into Tokens (fields listed in token.h)
+ * no external libraries used, everything written by myself from scratch.
  *
  * brief rules:
  *  - spaces get ignored.
  *  - multiple periods in one sequence (eg 1.23.45.67) return TKN_ERROR on the second period. Count starts from scratch afterward.
  *  - identifiers must start with a character in the English alphabet. After the first character numbers and question marks are counted.
- *  - something i most likely forgot.
+ *  - something I most likely forgot.
  */
 #include "lexer.h"
 
@@ -36,15 +37,14 @@ static int isDigit(char ch) {
 
 static int countAlphaSequence(Lexer *lexer) {
     // return the length of identifier sequence
-    int jobComplete = 0;
     int i = 0;
 
-    while (jobComplete == 0) {
+    while (1) {
         char currentChar = lexer->input_string[lexer->index + i];
         if (isAlpha(currentChar) || isDigit(currentChar) || currentChar == '?') {
             i++;
         }
-        else jobComplete = 1;
+        else break;
     }
     return i;
 }
@@ -52,13 +52,12 @@ static int countAlphaSequence(Lexer *lexer) {
 static int analyzeDigitSequence(Lexer *lexer,double *value) {
     // read through the current sequence of digits, return its length and pass a pointer of its numerical value
     int hasPeriodOccurred = 0;
-    int isNumberOver = 0;
     double place = 0.1;
     int i = 0;
     double loopNumber = 0;
     double total = 0;
 
-    while (isNumberOver == 0) {
+    while (1) {
         char loopLetter = lexer->input_string[lexer->index + i];
 
         if (isDigit(loopLetter)) {
@@ -77,7 +76,7 @@ static int analyzeDigitSequence(Lexer *lexer,double *value) {
             hasPeriodOccurred = 1;
             i++;
         }
-        else isNumberOver = 1;
+        else break;
     }
     *value = total; //change value to total through pointer
     return i;   // return digit sequence length
