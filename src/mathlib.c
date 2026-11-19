@@ -2,14 +2,18 @@
 #include <stdio.h>
 #include "mathlib.h"
 
-double my_abs(double x) {
+static int degMode = 0;    // 0=degrees, 1=radians.
+static int calcMode = 0;   // 0=normal, 1=science, 3=engineering.
+static int cmplxMode = 0;  // 0=cartesian, 1=polar coords.
+
+double my_abs(const double x) {
     if (x > 0) return x;
     if (x < 0) return -x;
     if (x == 0) return 0;
     return -1;
 }
 
-double my_factorial(int n) {
+double my_factorial(const int n) {
     double sum = 1;
     for (double i = 1; i <= n; i++) {
         sum *= i;
@@ -17,7 +21,7 @@ double my_factorial(int n) {
     return sum;
 }
 
-double my_pow(double base, int exp) {
+double my_pow(const double base, const int exp) {
     if (exp == 0) return 1;
     if (exp == 1) return base;
     if (exp > 1) {
@@ -30,29 +34,26 @@ double my_pow(double base, int exp) {
     return -1;
 }
 
-double my_sqrt(double x) {
-    if (x < 0) {
-        printf("ERROR: INVALID SQRT PARAMETER - NEGATIVE NUMBER IS ILLEGAL");
-        return -1;
-    }
+double my_sqrt(const double x) {
+    if (x < 0) return -1;
     if (x == 0) return 0;
     double epsilon = 0.000001;
     double guess = x;
 
     while (1) {
-        double next_guess = 0.5 * (guess + (x / guess));
+        double next_guess = 0.5 * (guess + x / guess);
 
-        if ((guess - next_guess) < epsilon && (next_guess - guess) < epsilon) return next_guess;
+        if (guess - next_guess < epsilon && next_guess - guess < epsilon) return next_guess;
         guess = next_guess;
     }
 }
 
-double my_sin(double x) {
+double my_sin(const double x) {
     double currentTerm = x;
     double newTerm;
 
     for (int i = 3; i <= 15; i++) {
-        newTerm = currentTerm * (my_pow(x,2))/(i * (i - 1));
+        newTerm = currentTerm * my_pow(x,2)/(i * (i - 1));
     }
     return newTerm;
 }

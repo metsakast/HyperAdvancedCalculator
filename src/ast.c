@@ -1,5 +1,6 @@
 #include "ast.h"
 #include <stddef.h>
+#include <stdio.h>
 
 #define MAXIMUM_NODE_COUNT 256
 
@@ -73,8 +74,58 @@ Node *makeCallNode(const char *nameStart, int nameLength, Node *argument, int po
     return n;
 }
 
-void printTree(const Node *tree) {
+static char operatorSymbol(const OperationKind op) {
+    switch (op) {
+        case OP_ADD:
+            return '+';
+        case OP_SUBTRACT:
+            return '-';
+        case OP_MULTIPLY:
+            return '*';
+        case OP_DIVIDE:
+            return '/';
+        case OP_POWER:
+            return '^';
+        default:
+            return '?';
+    }
+}
 
+void printTree(const Node *tree) {
+    if (tree == NULL) {
+        printf("<null>");
+        return;
+    }
+    switch (tree->kind) {
+        case NODE_NUMBER:
+            printf("%g", tree->as.number.value);
+            break;
+        case NODE_VARIABLE:
+            printf("%.*s", tree->as.variable.nameLength, tree->as.variable.nameStart);
+            break;
+        case NODE_NEGATE:
+            printf("(-");
+            printTree(tree->as.negate.operand);
+            printf(")");
+            break;
+        case NODE_BINARY:
+            printf("(");
+            printTree(tree->as.binary.left);
+            printf(" %c ", operatorSymbol(tree->as.binary.op));
+            printTree(tree->as.binary.right);
+            printf(")");
+            break;
+        case NODE_CALL:
+            printf("%.*s", tree->as.call.nameLength, tree->as.call.nameStart);
+            printf("(");
+            printTree(tree->as.call.argument);
+            printf(")");
+            break;
+        default:
+            printf("<unknown node>");
+            break;
+
+    }
 }
 
 
